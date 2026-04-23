@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% set active_page = 'accueil' %}
+
+{% block content %}
+<div class="hero-section">
+    <h1 class="hero-title">
+        Maîtrisez vos données avec <br>
+        <span style="background: linear-gradient(45deg, var(--secondary), var(--tertiary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MACHINE DATA HUB</span>
+    </h1>
+    <p class="hero-subtitle">
+        Une plateforme analytique de pointe conçue pour la gestion et l'analyse avancée des performances académiques. Transformez vos données brutes en informations stratégiques.
+    </p>
+    <div class="btn-actions" style="justify-content: center; gap: 20px;">
+        <a href="{{ url_for('collecte') }}" class="btn btn-primary" style="padding: 15px 40px; font-size: 15px;">
+            <i class="fa-solid fa-rocket"></i> Commencer maintenant
+        </a>
+        <a href="{{ url_for('resultats') }}" class="btn btn-light" style="padding: 15px 40px; font-size: 15px;">
+            <i class="fa-solid fa-chart-line"></i> Voir les analyses
+        </a>
+    </div>
+</div>
+
+<div class="features-grid">
+    <div class="feature-item">
+        <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+        <h3>Collecte Rapide</h3>
+        <p>Interface intuitive pour une saisie rapide des données étudiants avec validation en temps réel.</p>
+    </div>
+    <div class="feature-item">
+        <div class="feature-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+        <h3>Analyses Avancées</h3>
+        <p>Algorithmes statistiques automatisés pour extraire des tendances et des corrélations pertinentes.</p>
+    </div>
+    <div class="feature-item">
+        <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <h3>Sécurité des Données</h3>
+        <p>Stockage robuste et sécurisé de vos informations avec une architecture optimisée.</p>
+    </div>
+</div>
+
+<div class="panel" style="text-align: center; border-style: dashed;">
+    <h3 style="margin-bottom: 15px; color: var(--secondary);">Prêt à optimiser votre suivi ?</h3>
+    <p style="color: var(--text-muted); margin-bottom: 25px;">Rejoignez les utilisateurs qui font confiance à NEXUS pour leur gestion académique.</p>
+    <a href="{{ url_for('collecte') }}" class="btn btn-light">Accéder au formulaire</a>
+</div>
+{% endblock %}

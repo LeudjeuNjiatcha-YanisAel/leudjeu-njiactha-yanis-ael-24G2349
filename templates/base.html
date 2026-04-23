@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACHINE DATA HUB - Espace Analytique </title>
+    
+    <!-- Lien vers notre feuille de style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Moteur graphique Chart.js pour dessiner camembert et Nuage de points -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Typographie d'icônes FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    
+    <div class="container single-view">
+        
+        <!-- HEADER GLOBALE : Titre et Navigation -->
+        <div class="header-titles">
+            <h1><i class="fa-solid fa-microchip" style="color:var(--secondary);"></i> MACHINE DATA HUB</h1>
+            
+            <!-- Barre de navigation dynamique -->
+            <div class="btn-actions hide-on-print" style="justify-content: center; margin-top: 20px;">
+                <a href="{{ url_for('accueil') }}" class="btn {% if active_page == 'accueil' %}btn-primary{% else %}btn-light{% endif %}">
+                    <i class="fa-solid fa-house"></i> Accueil
+                </a>
+                <a href="{{ url_for('collecte') }}" class="btn {% if active_page == 'collecte' %}btn-primary{% else %}btn-light{% endif %}">
+                    <i class="fa-solid fa-pen-to-square"></i> Collecte
+                </a>
+                <a href="{{ url_for('resultats') }}" class="btn {% if active_page == 'resultats' %}btn-primary{% else %}btn-light{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i> Résultats
+                </a>
+            </div>
+        </div>
+
+        <hr class="separator">
+
+        <!-- Contenu dynamique de la page -->
+        {% block content %}
+        {% endblock %}
+        
+    </div>
+
+    <!-- Scripts personnalisés pour chaque page -->
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

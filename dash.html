@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INF232 - Espace Analytique et CRUD</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Utilisation de la police FontAwesome pour de jolies icônes sur nos boutons d'action -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="spa-layout">
+        <!-- ======================= -->
+        <!-- PANNEAU GAUCHE : FORM   -->
+        <!-- ======================= -->
+        <div class="sidebar container">
+            <!-- Si "edit_student" existe (venant de la base de données), le titre et l'action du formulaire changent pour l'UPDATE -->
+            {% if edit_student %}
+                <h2><i class="fa-solid fa-pen-to-square"></i> Modifier l'étudiant #{{ edit_student['id'] }}</h2>
+                <form method="POST" action="{{ url_for('update_student', id=edit_student['id']) }}">
+            {% else %}
+                <h2><i class="fa-solid fa-user-plus"></i> Ajouter un Étudiant</h2>
+                <form method="POST" action="{{ url_for('add_student') }}">
+            {% endif %}
+            
+                <div class="form-group">
+                    <label>Nom :</label>
+                    <input type="text" name="nom" required value="{{ edit_student['nom'] if edit_student else '' }}" />
+                </div>
+                <div class="form-group">
+                    <label>Prénom :</label>
+                    <input type="text" name="prenom" required value="{{ edit_student['prenom'] if edit_student else '' }}" />
+                </div>
+                <div class="form-group">
+                    <label>Filière :</label>
+                    <input type="text" name="filiere" required value="{{ edit_student['filiere'] if edit_student else '' }}" />
+                </div>
+                <div class="form-group">
+                    <label>Âge :</label>
+                    <input type="number" name="age" required min="10" max="100" value="{{ edit_student['age'] if edit_student else '' }}" />
+                </div>
+                <div class="form-group">
+                    <label>Moyenne Globale :</label>
+                    <input type="number" step="0.01" name="moyenne" required value="{{ edit_student['moyenne'] if edit_student else '' }}" />
+                </div>
+                <div class="form-group">
+                    <label>Temps d'étude (heures/sem):</label>
+                    <input type="number" step="0.5" name="temps_etude" required value="{{ edit_student['temps'] if edit_student else '' }}" />
+                </div>
+
+                <button type="submit" class="btn">
+                    {% if edit_student %} Mettre à jour (Update) {% else %} Enregistrer (Create) {% endif %}
+                </button>
+                
+                <!-- Lien pour annuler la modification et retourner à la vue normale -->
+                {% if edit_student %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" style="margin-top: 10px;">Annuler</a>
+                {% endif %}
+            </form>
+        </div>
+
+
+        <!-- ======================= -->
+        <!-- PANNEAU DROIT : ANALYSE -->
+        <!-- ======================= -->
+        <div class="main-content container dashboard-container">
+            <h1><i class="fa-solid fa-chart-pie"></i> Vue Analytique Globale</h1>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Total Étudiants</div>
+                    <div class="stat-value">{{ stats.get('total_etudiants', 0) }}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Moyenne Générale</div>
+                    <div class="stat-value">{{ stats.get('moyenne_generale', 0) }}/20</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Écart-type </div>
+                    <div class="stat-value">{{ stats.get('ecart_type_moyenne', 0) }}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Temps Moyen</div>
+                    <div class="stat-value">{{ stats.get('temps_etude_moyen', 0) }} h</div>
+                </div>
+            </div>
+
+            <!-- Graphiques -->
+            <div class="dashboard-grid" style="margin-top:20px;">
+                <div class="chart-card"><canvas id="filiereChart"></canvas></div>
+                <div class="chart-card"><canvas id="regressionChart"></canvas></div>
+            </div>
+
+            <h2 style="margin-top: 2rem;"><i class="fa-solid fa-database"></i> Base de Données</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Identité</th>
+                            <th>Filière</th>
+                            <th>Moyenne</th>
+                            <th>Temps</th>
+                            <!-- Nouvelle colonne CRUD -->
+                            <th>Actions (CRUD)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }} {{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                            <td><strong style="color:var(--secondary)">{{ row[4] }} / 20</strong></td>
+                            <td>{{ row[5] }}h</td>
+                            <td>
+                                <!-- Bouton pour déclencher l'UPDATE (Le GET charge les valeurs) -->
+                                <a href="{{ url_for('dashboard', edit_id=row[0]) }}" class="btn-icon btn-update" title="Modifier">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <!-- Bouton pour déclencher le DELETE -->
+                                <!-- On ajoute un "onclick" Javascript pour créer une popup de confirmation qui empêche les suppressions accidentelles -->
+                                <a href="{{ url_for('delete_student', id=row[0]) }}" class="btn-icon btn-delete" 
+                                   onclick="return confirm('Attention ! Êtes-vous sûr de vouloir supprimer cet étudiant ?');" title="Supprimer">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div> <!-- Fin du spa-layout -->
+
+    <!-- JAVASCRIPT CHARTS -->
+    <script>
+        // Le code des graphiques reste inchangé, gérant la donnée s'il y en a.
+        const cData = '{{ chart_data | safe }}';
+        if (cData !== '{}') {
+            const chartData = JSON.parse(cData);
+            
+            const ctxFiliere = document.getElementById('filiereChart').getContext('2d');
+            new Chart(ctxFiliere, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(chartData.filieres || {}),
+                    datasets: [{
+                        data: Object.values(chartData.filieres || {}),
+                        backgroundColor: ['#4F46E5', '#10B981', '#F43F5E', '#F59E0B', '#3B82F6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom', labels:{color:'#fff'} } } }
+            });
+
+            const ctxRegression = document.getElementById('regressionChart').getContext('2d');
+            new Chart(ctxRegression, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Étudiants',
+                        data: chartData.temps_vs_moyenne || [],
+                        backgroundColor: '#10B981',
+                        pointRadius: 6, pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: {display:true, text:'Temps (h)', color:'#fff'}, ticks:{color:'#fff'}},
+                        y: { title: {display:true, text:'Moyenne / 20', color:'#fff'}, ticks:{color:'#fff'}, min: 0, max: 20}
+                    },
+                    plugins: { legend: { labels:{color:'#fff'} } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

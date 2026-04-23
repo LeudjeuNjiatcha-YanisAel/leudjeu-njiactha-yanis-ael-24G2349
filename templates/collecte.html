@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% set active_page = 'collecte' %}
+
+{% block content %}
+<div class="panel form-panel hide-on-print">
+    <div class="panel-header">
+        <h2>
+            {% if edit_student %} 
+                <i class="fa-solid fa-pen"></i> Mise à jour de l'étudiant ID: {{ edit_student['id'] }} 
+            {% else %} 
+                <i class="fa-solid fa-plus"></i> <span style="color:var(--secondary)">Insérer</span> Nouvel Étudiant 
+            {% endif %}
+        </h2>
+    </div>
+    
+    <form method="POST" action="{{ url_for('update_student', id=edit_student['id']) if edit_student else url_for('add_student') }}">
+        <div class="form-grid-3">
+            <div class="form-group">
+                <label>Nom</label>
+                <input type="text" name="nom" required value="{{ edit_student['nom'] if edit_student else '' }}" placeholder="Ex: Dupont" />
+            </div>
+            <div class="form-group">
+                <label>Prénom</label>
+                <input type="text" name="prenom" required value="{{ edit_student['prenom'] if edit_student else '' }}" placeholder="Ex: Jean"/>
+            </div>
+            <div class="form-group">
+                <label>Genre</label>
+                <select name="sexe" style="width: 100%; padding: 12px 15px; background-color: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; font-size: 14px; color: var(--text-main);">
+                    <option value="Homme" {% if edit_student and edit_student['sexe'] == 'Homme' %}selected{% endif %}>Homme</option>
+                    <option value="Femme" {% if edit_student and edit_student['sexe'] == 'Femme' %}selected{% endif %}>Femme</option>
+                    <option value="Autre" {% if edit_student and edit_student['sexe'] == 'Autre' %}selected{% endif %}>Autre</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ville d'origine</label>
+                <input type="text" name="ville" required value="{{ edit_student['ville'] if edit_student else '' }}" placeholder="Ex: Yaoundé" />
+            </div>
+            <div class="form-group">
+                <label>Niveau</label>
+                <select name="niveau" style="width: 100%; padding: 12px 15px; background-color: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; font-size: 14px; color: var(--text-main);">
+                    <option value="L1" {% if edit_student and edit_student['niveau'] == 'L1' %}selected{% endif %}>Licence 1</option>
+                    <option value="L2" {% if edit_student and edit_student['niveau'] == 'L2' %}selected{% endif %}>Licence 2</option>
+                    <option value="L3" {% if edit_student and edit_student['niveau'] == 'L3' %}selected{% endif %}>Licence 3</option>
+                    <option value="M1" {% if edit_student and edit_student['niveau'] == 'M1' %}selected{% endif %}>Master 1</option>
+                    <option value="M2" {% if edit_student and edit_student['niveau'] == 'M2' %}selected{% endif %}>Master 2</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Spécialité</label>
+                <input type="text" name="filiere" required value="{{ edit_student['filiere'] if edit_student else '' }}" placeholder="Ex: Informatique" />
+            </div>
+            <div class="form-group">
+                <label>Âge</label>
+                <input type="number" name="age" required min="10" max="100" value="{{ edit_student['age'] if edit_student else '' }}" />
+            </div>
+            <div class="form-group">
+                <label>Temps d'étude (H)</label>
+                <input type="number" step="0.5" name="temps_etude" required value="{{ edit_student['temps'] if edit_student else '' }}" />
+            </div>
+            <div class="form-group">
+                <label>Moyenne Globale</label>
+                <input type="number" step="0.01" name="moyenne" required value="{{ edit_student['moyenne'] if edit_student else '' }}" />
+            </div>
+            <div class="form-group">
+                <label>Participation (%)</label>
+                <input type="number" name="participation" required min="0" max="100" value="{{ edit_student['participation'] if edit_student else '0' }}" />
+            </div>
+        </div>
+        
+        <div class="btn-actions" style="margin-top: 25px;">
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> {% if edit_student %}Mettre à jour{% else %}Enregistrer{% endif %}</button>
+            {% if edit_student %}
+                <a href="{{ url_for('collecte') }}" class="btn btn-light" style="padding-top:10px;">Annuler</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

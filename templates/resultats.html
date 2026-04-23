@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% set active_page = 'resultats' %}
+
+{% block content %}
+<!-- ============================================== -->
+<!-- SECTION 1 : STATISTIQUES                       -->
+<!-- ============================================== -->
+<div class="summary-cards">
+    <!-- Carte 1 -->
+    <div class="card">
+        <div class="card-icon blue-bg"><i class="fa-solid fa-users"></i></div>
+        <div class="card-info">
+            <h3>{{ stats.get('total_etudiants', 0) }}</h3>
+            <p>Total Étudiants</p>
+        </div>
+    </div>
+    <!-- Carte 2 -->
+    <div class="card">
+        <div class="card-icon yellow-bg"><i class="fa-solid fa-star"></i></div>
+        <div class="card-info">
+            <h3>{{ stats.get('moyenne_generale', 0) }} / 20</h3>
+            <p>Moyenne Globale</p>
+        </div>
+    </div>
+    <!-- Carte 3 -->
+    <div class="card">
+        <div class="card-icon red-bg"><i class="fa-solid fa-handshake-angle"></i></div>
+        <div class="card-info">
+            <h3>{{ stats.get('participation_moyenne', 0) }}%</h3>
+            <p>Participation Moyenne</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 3 : GRAPHIQUES (CHART JS)              -->
+<!-- ============================================== -->
+<div class="charts-grid panel hide-on-print">
+    <div class="chart-box">
+        <h3 class="chart-title">Répartition par Niveau</h3>
+        <canvas id="niveauChart"></canvas>
+    </div>
+    <div class="chart-box">
+        <h3 class="chart-title">Analyse Participation / Moyenne</h3>
+        <canvas id="regressionChart"></canvas>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 4 : TABLEAU DE LA BASE DE DONNÉES      -->
+<!-- ============================================== -->
+<div class="panel">
+    <div class="panel-header">
+        <h2><i class="fa-solid fa-list-ul"></i> Base de Données Étudiants</h2>
+        <div class="panel-tools hide-on-print">
+            <a href="#" class="btn btn-purple" onclick="window.print(); return false;">
+                <i class="fa-solid fa-file-pdf"></i> Imprimer PDF
+            </a>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="color:var(--primary);"><i class="fa-solid fa-id-badge"></i> Étudiant</th>
+                    <th style="color:#FFCE26;"><i class="fa-solid fa-layer-group"></i> Niveau</th>
+                    <th style="color:#00f2fe;"><i class="fa-solid fa-venus-mars"></i> Genre</th>
+                    <th style="color:#10f11f;"><i class="fa-solid fa-star"></i> Note</th>
+                    <th style="color:#a18cd1;"><i class="fa-solid fa-comments"></i> Part.</th>
+                    <th class="hide-on-print" style="color:#f20056;"><i class="fa-solid fa-wrench"></i> Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>
+                        <div class="avatar-cell">
+                            <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                            <div>
+                                <p><strong>{{ row[1] }} {{ row[2] }}</strong></p>
+                                <p style="font-size: 11px; color: var(--text-muted);">{{ row[6] }} | {{ row[4] }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight: 500; color: var(--secondary);">{{ row[5] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td><span class="status completed">{{ row[7] }} / 20</span></td>
+                    <td style="color: var(--text-muted);">{{ row[10] }}%</td>
+                    <td class="hide-on-print">
+                        <div class="action-buttons">
+                            <a href="{{ url_for('collecte', edit_id=row[0]) }}" class="btn-icon edit" title="Editer"><i class="fa-solid fa-pen"></i></a>
+                            <a href="{{ url_for('delete_student', id=row[0]) }}" onclick="return confirm('Supprimer définitivement cet étudiant ?');" class="btn-icon delete" title="Supprimer"><i class="fa-solid fa-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                        Aucun étudiant enregistré. Allez dans l'onglet "Collecte" pour en ajouter.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const textData = '{{ chart_data | safe }}';
+    if (textData !== '{}' && textData !== '') {
+        const chartData = JSON.parse(textData);
+        
+        // --- GRAPHIQUE 1 : DOUGHNUT (Niveau) ---
+        const ctx1 = document.getElementById('niveauChart');
+        if (ctx1) {
+            new Chart(ctx1.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(chartData.niveaux || {}),
+                    datasets: [{
+                        data: Object.values(chartData.niveaux || {}),
+                        backgroundColor: ['#09a736', '#00f2fe', '#10f11f', '#FFCE26', '#f20056'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { legend: { labels: { color: '#ffffff' } } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // --- GRAPHIQUE 2 : SCATTER (Participation vs Moyenne) ---
+        const ctx2 = document.getElementById('regressionChart');
+        if (ctx2) {
+            new Chart(ctx2.getContext('2d'), {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Corrélation Part/Note',
+                        data: chartData.temps_vs_moyenne || [],
+                        backgroundColor: '#00f2fe',
+                        pointRadius: 6, pointHoverRadius: 9
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: {display:true, text:'Temps étude (H)', color:'#9ca3af'}, grid: { color: 'rgba(255,255,255,0.05)' }, ticks:{color:'#fff'}, min:0 },
+                        y: { title: {display:true, text:'Moyenne', color:'#9ca3af'}, grid: { color: 'rgba(255,255,255,0.05)' }, ticks:{color:'#fff'}, min: 0, max: 20 }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
