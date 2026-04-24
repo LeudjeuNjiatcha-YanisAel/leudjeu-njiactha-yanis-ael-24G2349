@@ -62,7 +62,7 @@
                 <input type="number" step="0.01" name="moyenne" required value="{{ edit_student['moyenne'] if edit_student else '' }}" />
             </div>
             <div class="form-group">
-                <label>Participation (%)</label>
+                <label>Efforts Personnels (%)</label>
                 <input type="number" name="participation" required min="0" max="100" value="{{ edit_student['participation'] if edit_student else '0' }}" />
             </div>
         </div>
@@ -73,6 +73,26 @@
                 <a href="{{ url_for('collecte') }}" class="btn btn-light" style="padding-top:10px;">Annuler</a>
             {% endif %}
         </div>
+    </form>
+</div>
+
+<!-- SECTION SCRAPPING -->
+<div class="panel hide-on-print" style="border-style: dashed; border-color: var(--secondary);">
+    <div class="panel-header">
+        <h2><i class="fa-solid fa-spider"></i> Importer via Web Scraping</h2>
+    </div>
+    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
+        Entrez l'URL d'un annuaire étudiant ou d'une liste HTML pour extraire automatiquement les données. 
+        <br><small>(Note: Pour tester, laissez vide ou utilisez un lien contenant "test")</small>
+    </p>
+    <form method="POST" action="{{ url_for('scrapper') }}" style="display: flex; gap: 15px; align-items: flex-end;">
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label>URL du site cible</label>
+            <input type="url" name="url" placeholder="https://example.com/students" style="margin-bottom: 0;">
+        </div>
+        <button type="submit" class="btn btn-light" style="white-space: nowrap;">
+            <i class="fa-solid fa-cloud-download"></i> Lancer le Scrapping
+        </button>
     </form>
 </div>
 {% endblock %}

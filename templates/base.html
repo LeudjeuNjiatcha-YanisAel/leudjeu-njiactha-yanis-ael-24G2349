@@ -22,17 +22,24 @@
         <div class="header-titles">
             <h1><i class="fa-solid fa-microchip" style="color:var(--secondary);"></i> MACHINE DATA HUB</h1>
             
-            <!-- Barre de navigation dynamique -->
-            <div class="btn-actions hide-on-print" style="justify-content: center; margin-top: 20px;">
-                <a href="{{ url_for('accueil') }}" class="btn {% if active_page == 'accueil' %}btn-primary{% else %}btn-light{% endif %}">
-                    <i class="fa-solid fa-house"></i> Accueil
-                </a>
-                <a href="{{ url_for('collecte') }}" class="btn {% if active_page == 'collecte' %}btn-primary{% else %}btn-light{% endif %}">
-                    <i class="fa-solid fa-pen-to-square"></i> Collecte
-                </a>
-                <a href="{{ url_for('resultats') }}" class="btn {% if active_page == 'resultats' %}btn-primary{% else %}btn-light{% endif %}">
-                    <i class="fa-solid fa-chart-pie"></i> Résultats
-                </a>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <!-- Barre de navigation dynamique -->
+                <nav class="btn-actions hide-on-print">
+                    <a href="{{ url_for('accueil') }}" class="btn {% if active_page == 'accueil' %}btn-primary{% else %}btn-light{% endif %}">
+                        <i class="fa-solid fa-house"></i> Accueil
+                    </a>
+                    <a href="{{ url_for('collecte') }}" class="btn {% if active_page == 'collecte' %}btn-primary{% else %}btn-light{% endif %}">
+                        <i class="fa-solid fa-pen-to-square"></i> Collecte
+                    </a>
+                    <a href="{{ url_for('resultats') }}" class="btn {% if active_page == 'resultats' %}btn-primary{% else %}btn-light{% endif %}">
+                        <i class="fa-solid fa-chart-pie"></i> Résultats
+                    </a>
+                </nav>
+
+                <!-- Bouton Thème -->
+                <button id="theme-btn" class="theme-toggle hide-on-print" title="Changer le thème">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
             </div>
         </div>
 
@@ -43,6 +50,64 @@
         {% endblock %}
         
     </div>
+
+    <!-- MODAL DE CONFIRMATION DE SUPPRESSION -->
+    <div id="delete-modal" class="modal-overlay hide-on-print">
+        <div class="modal-content">
+            <div style="font-size: 50px; color: #f20056; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <h3>Confirmer la suppression ?</h3>
+            <p style="color: var(--text-muted); margin: 15px 0 25px;">Cette action est irréversible. Toutes les données de cet étudiant seront effacées.</p>
+            <div class="btn-actions" style="justify-content: center;">
+                <button id="cancel-delete" class="btn btn-light">Annuler</button>
+                <a id="confirm-delete-btn" href="#" class="btn btn-primary" style="background: #f20056; color: white;">Supprimer</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de gestion du thème et des interactions -->
+    <script>
+        // --- GESTION DU THÈME ---
+        const themeBtn = document.getElementById('theme-btn');
+        const body = document.body;
+        const icon = themeBtn.querySelector('i');
+
+        if (localStorage.getItem('theme') === 'light') {
+            body.classList.add('light-theme');
+            icon.classList.replace('fa-moon', 'fa-sun');
+        }
+
+        themeBtn.addEventListener('click', () => {
+            body.classList.toggle('light-theme');
+            if (body.classList.contains('light-theme')) {
+                localStorage.setItem('theme', 'light');
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        });
+
+        // --- GESTION DU MODAL DE SUPPRESSION ---
+        const deleteModal = document.getElementById('delete-modal');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+
+        function showDeleteModal(url) {
+            confirmDeleteBtn.href = url;
+            deleteModal.classList.add('active');
+        }
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteModal.classList.remove('active');
+        });
+
+        // Fermer le modal si on clique en dehors
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) deleteModal.classList.remove('active');
+        });
+    </script>
 
     <!-- Scripts personnalisés pour chaque page -->
     {% block scripts %}
